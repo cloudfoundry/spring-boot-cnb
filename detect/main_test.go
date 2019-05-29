@@ -19,7 +19,9 @@ package main
 import (
 	"testing"
 
+	"github.com/buildpack/libbuildpack/buildplan"
 	"github.com/buildpack/libbuildpack/detect"
+	"github.com/cloudfoundry/jvm-application-cnb/jvmapplication"
 	"github.com/cloudfoundry/libcfbuildpack/test"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
@@ -37,8 +39,17 @@ func TestDetect(t *testing.T) {
 			f = test.NewDetectFactory(t)
 		})
 
-		it("always fails", func() {
+		it("fails without jvm-application", func() {
+			defer test.ReplaceEnv(t, "BP_DEBUG", "")()
+
 			g.Expect(d(f.Detect)).To(Equal(detect.FailStatusCode))
+		})
+
+		it("passes with jvm-application", func() {
+			f.AddBuildPlan(jvmapplication.Dependency, buildplan.Dependency{})
+
+			g.Expect(d(f.Detect)).To(Equal(detect.PassStatusCode))
+			g.Expect(f.Output).To(Equal(buildplan.BuildPlan{}))
 		})
 	}, spec.Report(report.Terminal{}))
 }

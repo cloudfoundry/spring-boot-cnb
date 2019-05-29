@@ -22,6 +22,7 @@ import (
 
 	"github.com/buildpack/libbuildpack/buildplan"
 	"github.com/cloudfoundry/libcfbuildpack/build"
+	"github.com/cloudfoundry/spring-boot-cnb/springboot"
 )
 
 func main() {
@@ -40,5 +41,24 @@ func main() {
 }
 
 func b(build build.Build) (int, error) {
-	return build.Success(buildplan.BuildPlan{})
+	build.Logger.FirstLine(build.Logger.PrettyIdentity(build.Buildpack))
+
+	bp := buildplan.BuildPlan{}
+
+	if e, ok, err := springboot.NewSpringBoot(build); err != nil {
+		return build.Failure(102), err
+	} else if ok {
+		if err = e.Contribute(); err != nil {
+			return build.Failure(103), err
+		}
+
+		b, err := e.BuildPlan()
+		if err != nil {
+			return build.Failure(103), err
+		}
+
+		bp.Merge(b)
+	}
+
+	return build.Success(bp)
 }

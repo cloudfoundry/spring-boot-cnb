@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/buildpack/libbuildpack/buildplan"
+	"github.com/cloudfoundry/jvm-application-cnb/jvmapplication"
 	"github.com/cloudfoundry/libcfbuildpack/detect"
 )
 
@@ -39,5 +41,9 @@ func main() {
 }
 
 func d(detect detect.Detect) (int, error) {
+	if _, ok := detect.BuildPlan[jvmapplication.Dependency]; ok {
+		return detect.Pass(buildplan.BuildPlan{})
+	}
+
 	return detect.Fail(), nil
 }
