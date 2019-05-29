@@ -32,6 +32,11 @@ func main() {
 		os.Exit(101)
 	}
 
+	if err := detect.BuildPlan.Init(); err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "Failed to initialize Build Plan: %s\n", err)
+		os.Exit(101)
+	}
+
 	if code, err := d(detect); err != nil {
 		detect.Logger.Info(err.Error())
 		os.Exit(code)
