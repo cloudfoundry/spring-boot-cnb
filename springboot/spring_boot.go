@@ -33,20 +33,22 @@ const Dependency = "spring-boot"
 
 // SpringBoot represents a Spring Boot JVM application.
 type SpringBoot struct {
-	layer    layers.Layer
-	layers   layers.Layers
-	metadata Metadata
+	// Metadata is metadata about the Spring Boot application.
+	Metadata Metadata
+
+	layer  layers.Layer
+	layers layers.Layers
 }
 
 // Contribute makes the contribution to launch
 func (s SpringBoot) Contribute() error {
-	if err := s.layer.Contribute(s.metadata, func(layer layers.Layer) error {
-		return layer.AppendPathSharedEnv("CLASSPATH", strings.Join(s.metadata.ClassPath, string(filepath.ListSeparator)))
+	if err := s.layer.Contribute(s.Metadata, func(layer layers.Layer) error {
+		return layer.AppendPathSharedEnv("CLASSPATH", strings.Join(s.Metadata.ClassPath, string(filepath.ListSeparator)))
 	}, layers.Build, layers.Cache, layers.Launch); err != nil {
 		return err
 	}
 
-	command := fmt.Sprintf("java -cp $CLASSPATH $JAVA_OPTS %s", s.metadata.StartClass)
+	command := fmt.Sprintf("java -cp $CLASSPATH $JAVA_OPTS %s", s.Metadata.StartClass)
 
 	return s.layers.WriteApplicationMetadata(layers.Metadata{
 		Processes: layers.Processes{
@@ -61,7 +63,7 @@ func (s SpringBoot) Contribute() error {
 func (s SpringBoot) BuildPlan() (buildplan.BuildPlan, error) {
 	md := make(buildplan.Metadata)
 
-	if err := mapstructure.Decode(s.metadata, &md); err != nil {
+	if err := mapstructure.Decode(s.Metadata, &md); err != nil {
 		return nil, err
 	}
 
@@ -70,8 +72,7 @@ func (s SpringBoot) BuildPlan() (buildplan.BuildPlan, error) {
 
 // String makes ExecutableJAR satisfy the Stringer interface.
 func (s SpringBoot) String() string {
-	return fmt.Sprintf("SpringBoot{ layer: %s, layers: %s, metadata: %s }",
-		s.layer, s.layers, s.metadata)
+	return fmt.Sprintf("SpringBoot{ Metadata: %s, layer: %s, layers: %s }", s.Metadata, s.layer, s.layers)
 }
 
 // NewSpringBoot creates a new SpringBoot instance.  OK is true if the build plan contains a "jvm-application"
@@ -92,8 +93,8 @@ func NewSpringBoot(build build.Build) (SpringBoot, bool, error) {
 	}
 
 	return SpringBoot{
+		md,
 		build.Layers.Layer(Dependency),
 		build.Layers,
-		md,
 	}, true, nil
 }
