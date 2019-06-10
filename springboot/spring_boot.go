@@ -70,11 +70,6 @@ func (s SpringBoot) BuildPlan() (buildplan.BuildPlan, error) {
 	return buildplan.BuildPlan{Dependency: buildplan.Dependency{Metadata: md}}, nil
 }
 
-// String makes ExecutableJAR satisfy the Stringer interface.
-func (s SpringBoot) String() string {
-	return fmt.Sprintf("SpringBoot{ Metadata: %s, layer: %s, layers: %s }", s.Metadata, s.layer, s.layers)
-}
-
 // NewSpringBoot creates a new SpringBoot instance.  OK is true if the build plan contains a "jvm-application"
 // dependency and a "Spring-Boot-Version" manifest key.
 func NewSpringBoot(build build.Build) (SpringBoot, bool, error) {

@@ -17,7 +17,6 @@
 package springboot
 
 import (
-	"fmt"
 	"path/filepath"
 	"regexp"
 
@@ -47,12 +46,6 @@ type Metadata struct {
 
 func (m Metadata) Identity() (string, string) {
 	return "Spring Boot", m.Version
-}
-
-// String makes Metadata satisfy the Stringer interface.
-func (m Metadata) String() string {
-	return fmt.Sprintf("Metadata{ Classes: %s, Lib: %s, StartClass: %s, Version: %s }",
-		m.Classes, m.Lib, m.StartClass, m.Version)
 }
 
 // NewMetadata creates a new Metadata returning false if Spring-Boot-Version is not defined.
