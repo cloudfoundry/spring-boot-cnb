@@ -40,7 +40,7 @@ type SpringBoot struct {
 	layers layers.Layers
 }
 
-// Contribute makes the contribution to launch
+// Contribute makes the contribution to build, cache, and launch.
 func (s SpringBoot) Contribute() error {
 	if err := s.layer.Contribute(s.Metadata, func(layer layers.Layer) error {
 		return layer.AppendPathSharedEnv("CLASSPATH", strings.Join(s.Metadata.ClassPath, string(filepath.ListSeparator)))

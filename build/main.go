@@ -22,6 +22,7 @@ import (
 
 	"github.com/buildpack/libbuildpack/buildplan"
 	"github.com/cloudfoundry/libcfbuildpack/build"
+	"github.com/cloudfoundry/spring-boot-cnb/cli"
 	"github.com/cloudfoundry/spring-boot-cnb/springboot"
 )
 
@@ -58,6 +59,24 @@ func b(build build.Build) (int, error) {
 		}
 
 		bp.Merge(b)
+	}
+
+	if c, ok, err := cli.NewCommand(build); err != nil {
+		return build.Failure(102), err
+	} else if ok {
+		build.Logger.FirstLine(build.Logger.PrettyIdentity(build.Buildpack))
+
+		if l, err := cli.NewCLI(build); err != nil {
+			return build.Failure(102), err
+		} else {
+			if err := l.Contribute(); err != nil {
+				return build.Failure(103), err
+			}
+		}
+
+		if err = c.Contribute(); err != nil {
+			return build.Failure(103), err
+		}
 	}
 
 	return build.Success(bp)
