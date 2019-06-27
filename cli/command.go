@@ -115,7 +115,7 @@ func all(candidates []string, predicate func(candidate string) bool) bool {
 }
 
 func candidates(root string) ([]string, error) {
-	c, err := helper.FindFiles(root, regexp.MustCompile(".*\\.groovy"))
+	c, err := helper.FindFiles(root, regexp.MustCompile(`.+\.groovy`))
 	if err != nil {
 		return nil, err
 	}
