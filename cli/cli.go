@@ -33,7 +33,7 @@ type CLI struct {
 // Contribute makes the contribution to launch.
 func (c CLI) Contribute() error {
 	return c.layer.Contribute(func(artifact string, layer layers.DependencyLayer) error {
-		layer.Logger.SubsequentLine("Expanding to %s", layer.Root)
+		layer.Logger.Body("Expanding to %s", layer.Root)
 
 		return helper.ExtractTarGz(artifact, layer.Root, 1)
 	}, layers.Launch)

@@ -47,7 +47,7 @@ func b(build build.Build) (int, error) {
 	if e, ok, err := springboot.NewSpringBoot(build); err != nil {
 		return build.Failure(102), err
 	} else if ok {
-		build.Logger.FirstLine(build.Logger.PrettyIdentity(build.Buildpack))
+		build.Logger.Title(build.Buildpack)
 
 		if err = e.Contribute(); err != nil {
 			return build.Failure(103), err
@@ -64,7 +64,7 @@ func b(build build.Build) (int, error) {
 	if c, ok, err := cli.NewCommand(build); err != nil {
 		return build.Failure(102), err
 	} else if ok {
-		build.Logger.FirstLine(build.Logger.PrettyIdentity(build.Buildpack))
+		build.Logger.Title(build.Buildpack)
 
 		if l, err := cli.NewCLI(build); err != nil {
 			return build.Failure(102), err
