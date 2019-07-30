@@ -22,7 +22,7 @@ import (
 
 	"github.com/cloudfoundry/libcfbuildpack/test"
 	"github.com/cloudfoundry/spring-boot-cnb/springboot"
-	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 )
@@ -30,7 +30,7 @@ import (
 func TestMetadata(t *testing.T) {
 	spec.Run(t, "Metadata", func(t *testing.T, when spec.G, it spec.S) {
 
-		g := NewGomegaWithT(t)
+		g := gomega.NewWithT(t)
 
 		var f *test.DetectFactory
 
@@ -40,8 +40,8 @@ func TestMetadata(t *testing.T) {
 
 		it("returns false if no Spring-Boot-Version", func() {
 			_, ok, err := springboot.NewMetadata(f.Detect.Application, f.Detect.Logger)
-			g.Expect(ok).To(BeFalse())
-			g.Expect(err).NotTo(HaveOccurred())
+			g.Expect(ok).To(gomega.BeFalse())
+			g.Expect(err).NotTo(gomega.HaveOccurred())
 		})
 
 		it("parses Main-Class", func() {
@@ -54,10 +54,10 @@ Start-Class: test-start-class
 Spring-Boot-Version: test-version`)
 
 			md, ok, err := springboot.NewMetadata(f.Detect.Application, f.Detect.Logger)
-			g.Expect(ok).To(BeTrue())
-			g.Expect(err).NotTo(HaveOccurred())
+			g.Expect(ok).To(gomega.BeTrue())
+			g.Expect(err).NotTo(gomega.HaveOccurred())
 
-			g.Expect(md).To(Equal(springboot.Metadata{
+			g.Expect(md).To(gomega.Equal(springboot.Metadata{
 				Classes: "test-classes",
 				ClassPath: []string{
 					filepath.Join(f.Detect.Application.Root, "test-classes"),

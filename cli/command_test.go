@@ -26,7 +26,7 @@ import (
 	"github.com/cloudfoundry/libcfbuildpack/layers"
 	"github.com/cloudfoundry/libcfbuildpack/test"
 	"github.com/cloudfoundry/spring-boot-cnb/cli"
-	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 )
@@ -34,7 +34,7 @@ import (
 func TestCommand(t *testing.T) {
 	spec.Run(t, "Spring Boot CLI Command", func(t *testing.T, when spec.G, it spec.S) {
 
-		g := NewGomegaWithT(t)
+		g := gomega.NewWithT(t)
 
 		var f *test.BuildFactory
 
@@ -47,16 +47,16 @@ func TestCommand(t *testing.T) {
 				test.TouchFile(t, f.Build.Application.Root, "test.groovy")
 
 				_, ok, err := cli.NewCommand(f.Build)
-				g.Expect(ok).To(BeFalse())
-				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(ok).To(gomega.BeFalse())
+				g.Expect(err).NotTo(gomega.HaveOccurred())
 			})
 
 			it("returns false when no groovy files", func() {
 				f.AddBuildPlan(jvmapplication.Dependency, buildplan.Dependency{})
 
 				_, ok, err := cli.NewCommand(f.Build)
-				g.Expect(ok).To(BeFalse())
-				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(ok).To(gomega.BeFalse())
+				g.Expect(err).NotTo(gomega.HaveOccurred())
 			})
 
 			it("returns true when jvm-application and groovy files", func() {
@@ -64,8 +64,8 @@ func TestCommand(t *testing.T) {
 				test.CopyDirectory(t, filepath.Join("testdata", "valid_app"), f.Build.Application.Root)
 
 				_, ok, err := cli.NewCommand(f.Build)
-				g.Expect(ok).To(BeTrue())
-				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(ok).To(gomega.BeTrue())
+				g.Expect(err).NotTo(gomega.HaveOccurred())
 			})
 
 			it("ignores .groovy directories", func() {
@@ -73,8 +73,8 @@ func TestCommand(t *testing.T) {
 				test.TouchFile(t, f.Build.Application.Root, "test.groovy", "test")
 
 				_, ok, err := cli.NewCommand(f.Build)
-				g.Expect(ok).To(BeFalse())
-				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(ok).To(gomega.BeFalse())
+				g.Expect(err).NotTo(gomega.HaveOccurred())
 			})
 
 			it("rejects non-POGO, non-config files", func() {
@@ -82,8 +82,8 @@ func TestCommand(t *testing.T) {
 				test.WriteFile(t, filepath.Join(f.Build.Application.Root, "test.groovy"), "x")
 
 				_, ok, err := cli.NewCommand(f.Build)
-				g.Expect(ok).To(BeFalse())
-				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(ok).To(gomega.BeFalse())
+				g.Expect(err).NotTo(gomega.HaveOccurred())
 			})
 
 			it("ignores logback files", func() {
@@ -91,8 +91,8 @@ func TestCommand(t *testing.T) {
 				test.WriteFile(t, filepath.Join(f.Build.Application.Root, "ch", "qos", "logback", "test.groovy"), "class X {")
 
 				_, ok, err := cli.NewCommand(f.Build)
-				g.Expect(ok).To(BeFalse())
-				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(ok).To(gomega.BeFalse())
+				g.Expect(err).NotTo(gomega.HaveOccurred())
 			})
 
 			it("detects POGO files", func() {
@@ -100,8 +100,8 @@ func TestCommand(t *testing.T) {
 				test.WriteFile(t, filepath.Join(f.Build.Application.Root, "test.groovy"), "class X {")
 
 				_, ok, err := cli.NewCommand(f.Build)
-				g.Expect(ok).To(BeTrue())
-				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(ok).To(gomega.BeTrue())
+				g.Expect(err).NotTo(gomega.HaveOccurred())
 			})
 
 			it("detects config files", func() {
@@ -109,8 +109,8 @@ func TestCommand(t *testing.T) {
 				test.WriteFile(t, filepath.Join(f.Build.Application.Root, "test.groovy"), "beans {")
 
 				_, ok, err := cli.NewCommand(f.Build)
-				g.Expect(ok).To(BeTrue())
-				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(ok).To(gomega.BeTrue())
+				g.Expect(err).NotTo(gomega.HaveOccurred())
 			})
 
 			it("detects invalid .groovy files", func() {
@@ -118,8 +118,8 @@ func TestCommand(t *testing.T) {
 				test.CopyFile(t, filepath.Join("testdata", "valid_app", "invalid.groovy"), filepath.Join(f.Build.Application.Root, "test.groovy"))
 
 				_, ok, err := cli.NewCommand(f.Build)
-				g.Expect(ok).To(BeTrue())
-				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(ok).To(gomega.BeTrue())
+				g.Expect(err).NotTo(gomega.HaveOccurred())
 			})
 
 		})
@@ -129,10 +129,10 @@ func TestCommand(t *testing.T) {
 			test.CopyDirectory(t, filepath.Join("testdata", "valid_app"), f.Build.Application.Root)
 
 			c, ok, err := cli.NewCommand(f.Build)
-			g.Expect(ok).To(BeTrue())
-			g.Expect(err).NotTo(HaveOccurred())
+			g.Expect(ok).To(gomega.BeTrue())
+			g.Expect(err).NotTo(gomega.HaveOccurred())
 
-			g.Expect(c.Contribute()).To(Succeed())
+			g.Expect(c.Contribute()).To(gomega.Succeed())
 
 			layer := f.Build.Layers.Layer("command")
 			g.Expect(layer).To(test.HaveLayerMetadata(false, false, true))

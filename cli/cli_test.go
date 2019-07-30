@@ -22,7 +22,7 @@ import (
 
 	"github.com/cloudfoundry/libcfbuildpack/test"
 	"github.com/cloudfoundry/spring-boot-cnb/cli"
-	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 )
@@ -30,7 +30,7 @@ import (
 func TestCLI(t *testing.T) {
 	spec.Run(t, "Spring Boot CLI", func(t *testing.T, when spec.G, it spec.S) {
 
-		g := NewGomegaWithT(t)
+		g := gomega.NewWithT(t)
 
 		var f *test.BuildFactory
 
@@ -42,13 +42,13 @@ func TestCLI(t *testing.T) {
 			f.AddDependency(cli.Dependency, filepath.Join("testdata", "stub-spring-boot-cli.tar.gz"))
 
 			a, err := cli.NewCLI(f.Build)
-			g.Expect(err).NotTo(HaveOccurred())
+			g.Expect(err).NotTo(gomega.HaveOccurred())
 
-			g.Expect(a.Contribute()).To(Succeed())
+			g.Expect(a.Contribute()).To(gomega.Succeed())
 
 			layer := f.Build.Layers.Layer("spring-boot-cli")
 			g.Expect(layer).To(test.HaveLayerMetadata(false, false, true))
-			g.Expect(filepath.Join(layer.Root, "bin", "spring")).To(BeARegularFile())
+			g.Expect(filepath.Join(layer.Root, "bin", "spring")).To(gomega.BeARegularFile())
 		})
 	}, spec.Report(report.Terminal{}))
 }

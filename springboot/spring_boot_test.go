@@ -26,7 +26,7 @@ import (
 	"github.com/cloudfoundry/libcfbuildpack/layers"
 	"github.com/cloudfoundry/libcfbuildpack/test"
 	"github.com/cloudfoundry/spring-boot-cnb/springboot"
-	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 )
@@ -34,7 +34,7 @@ import (
 func TestSpringBoot(t *testing.T) {
 	spec.Run(t, "SpringBoot", func(t *testing.T, when spec.G, it spec.S) {
 
-		g := NewGomegaWithT(t)
+		g := gomega.NewWithT(t)
 
 		var f *test.BuildFactory
 
@@ -53,8 +53,8 @@ Start-Class: test-start-class
 Spring-Boot-Version: test-version`)
 
 				_, ok, err := springboot.NewSpringBoot(f.Build)
-				g.Expect(ok).To(BeFalse())
-				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(ok).To(gomega.BeFalse())
+				g.Expect(err).NotTo(gomega.HaveOccurred())
 			})
 
 			it("returns false when no Spring-Boot-Version", func() {
@@ -62,8 +62,8 @@ Spring-Boot-Version: test-version`)
 				test.WriteFile(t, filepath.Join(f.Build.Application.Root, "META-INF", "MANIFEST.MF"), "")
 
 				_, ok, err := springboot.NewSpringBoot(f.Build)
-				g.Expect(ok).To(BeFalse())
-				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(ok).To(gomega.BeFalse())
+				g.Expect(err).NotTo(gomega.HaveOccurred())
 			})
 
 			it("returns true when Spring-Boot-Version exists", func() {
@@ -76,8 +76,8 @@ Start-Class: test-start-class
 Spring-Boot-Version: test-version`)
 
 				_, ok, err := springboot.NewSpringBoot(f.Build)
-				g.Expect(ok).To(BeTrue())
-				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(ok).To(gomega.BeTrue())
+				g.Expect(err).NotTo(gomega.HaveOccurred())
 			})
 		})
 
@@ -92,10 +92,10 @@ Start-Class: test-start-class
 Spring-Boot-Version: test-version`)
 
 			e, ok, err := springboot.NewSpringBoot(f.Build)
-			g.Expect(ok).To(BeTrue())
-			g.Expect(err).NotTo(HaveOccurred())
+			g.Expect(ok).To(gomega.BeTrue())
+			g.Expect(err).NotTo(gomega.HaveOccurred())
 
-			g.Expect(e.Contribute()).To(Succeed())
+			g.Expect(e.Contribute()).To(gomega.Succeed())
 
 			layer := f.Build.Layers.Layer("spring-boot")
 			g.Expect(layer).To(test.HaveLayerMetadata(true, true, true))
