@@ -24,7 +24,6 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/cloudfoundry/jvm-application-cnb/jvmapplication"
 	"github.com/cloudfoundry/libcfbuildpack/build"
 	"github.com/cloudfoundry/libcfbuildpack/helper"
 	"github.com/cloudfoundry/libcfbuildpack/layers"
@@ -70,11 +69,6 @@ func (g groovyFiles) Identity() (string, string) {
 
 // NewCommand creates a new Command instance.
 func NewCommand(build build.Build) (Command, bool, error) {
-	_, ok := build.BuildPlan[jvmapplication.Dependency]
-	if !ok {
-		return Command{}, false, nil
-	}
-
 	candidates, err := candidates(build.Application.Root)
 	if err != nil {
 		return Command{}, false, err

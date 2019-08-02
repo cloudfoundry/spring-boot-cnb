@@ -21,8 +21,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/buildpack/libbuildpack/buildplan"
-	"github.com/cloudfoundry/jvm-application-cnb/jvmapplication"
 	"github.com/cloudfoundry/libcfbuildpack/layers"
 	"github.com/cloudfoundry/libcfbuildpack/test"
 	"github.com/cloudfoundry/spring-boot-cnb/springboot"
@@ -44,21 +42,7 @@ func TestSpringBoot(t *testing.T) {
 
 		when("NewSpringBoot", func() {
 
-			it("returns false when no jvm-application", func() {
-				test.WriteFile(t, filepath.Join(f.Build.Application.Root, "META-INF", "MANIFEST.MF"),
-					`
-Spring-Boot-Classes: test-classes
-Spring-Boot-Lib: test-lib
-Start-Class: test-start-class
-Spring-Boot-Version: test-version`)
-
-				_, ok, err := springboot.NewSpringBoot(f.Build)
-				g.Expect(ok).To(gomega.BeFalse())
-				g.Expect(err).NotTo(gomega.HaveOccurred())
-			})
-
 			it("returns false when no Spring-Boot-Version", func() {
-				f.AddBuildPlan(jvmapplication.Dependency, buildplan.Dependency{})
 				test.WriteFile(t, filepath.Join(f.Build.Application.Root, "META-INF", "MANIFEST.MF"), "")
 
 				_, ok, err := springboot.NewSpringBoot(f.Build)
@@ -67,7 +51,6 @@ Spring-Boot-Version: test-version`)
 			})
 
 			it("returns true when Spring-Boot-Version exists", func() {
-				f.AddBuildPlan(jvmapplication.Dependency, buildplan.Dependency{})
 				test.WriteFile(t, filepath.Join(f.Build.Application.Root, "META-INF", "MANIFEST.MF"),
 					`
 Spring-Boot-Classes: test-classes
@@ -82,7 +65,6 @@ Spring-Boot-Version: test-version`)
 		})
 
 		it("contributes command", func() {
-			f.AddBuildPlan(jvmapplication.Dependency, buildplan.Dependency{})
 			test.TouchFile(t, filepath.Join(f.Build.Application.Root, "test-lib", "test.jar"))
 			test.WriteFile(t, filepath.Join(f.Build.Application.Root, "META-INF", "MANIFEST.MF"),
 				`

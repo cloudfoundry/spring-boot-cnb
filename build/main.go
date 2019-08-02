@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/buildpack/libbuildpack/buildplan"
 	"github.com/cloudfoundry/libcfbuildpack/build"
+	"github.com/cloudfoundry/libcfbuildpack/buildpackplan"
 	"github.com/cloudfoundry/spring-boot-cnb/cli"
 	"github.com/cloudfoundry/spring-boot-cnb/springboot"
 )
@@ -42,23 +42,23 @@ func main() {
 }
 
 func b(build build.Build) (int, error) {
-	bp := buildplan.BuildPlan{}
+	var ps []buildpackplan.Plan
 
-	if e, ok, err := springboot.NewSpringBoot(build); err != nil {
+	if s, ok, err := springboot.NewSpringBoot(build); err != nil {
 		return build.Failure(102), err
 	} else if ok {
 		build.Logger.Title(build.Buildpack)
 
-		if err = e.Contribute(); err != nil {
+		if err = s.Contribute(); err != nil {
 			return build.Failure(103), err
 		}
 
-		b, err := e.BuildPlan()
+		p, err := s.Plan()
 		if err != nil {
 			return build.Failure(103), err
 		}
 
-		bp.Merge(b)
+		ps = append(ps, p)
 	}
 
 	if c, ok, err := cli.NewCommand(build); err != nil {
@@ -79,5 +79,5 @@ func b(build build.Build) (int, error) {
 		}
 	}
 
-	return build.Success(bp)
+	return build.Success(ps...)
 }

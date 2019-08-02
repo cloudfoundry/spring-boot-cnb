@@ -21,9 +21,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/buildpack/libbuildpack/buildplan"
-	"github.com/cloudfoundry/jvm-application-cnb/jvmapplication"
 	"github.com/cloudfoundry/libcfbuildpack/build"
+	"github.com/cloudfoundry/libcfbuildpack/buildpackplan"
 	"github.com/cloudfoundry/libcfbuildpack/layers"
 	"github.com/mitchellh/mapstructure"
 )
@@ -59,25 +58,23 @@ func (s SpringBoot) Contribute() error {
 	})
 }
 
-// BuildPlan returns the dependency information for this application.
-func (s SpringBoot) BuildPlan() (buildplan.BuildPlan, error) {
-	md := make(buildplan.Metadata)
-
-	if err := mapstructure.Decode(s.Metadata, &md); err != nil {
-		return nil, err
+// Plan returns the dependency information for this application.
+func (s SpringBoot) Plan() (buildpackplan.Plan, error) {
+	p := buildpackplan.Plan{
+		Name:     Dependency,
+		Metadata: buildpackplan.Metadata{},
 	}
 
-	return buildplan.BuildPlan{Dependency: buildplan.Dependency{Metadata: md}}, nil
+	if err := mapstructure.Decode(s.Metadata, &p.Metadata); err != nil {
+		return buildpackplan.Plan{}, err
+	}
+
+	return p, nil
 }
 
 // NewSpringBoot creates a new SpringBoot instance.  OK is true if the build plan contains a "jvm-application"
 // dependency and a "Spring-Boot-Version" manifest key.
 func NewSpringBoot(build build.Build) (SpringBoot, bool, error) {
-	_, ok := build.BuildPlan[jvmapplication.Dependency]
-	if !ok {
-		return SpringBoot{}, false, nil
-	}
-
 	md, ok, err := NewMetadata(build.Application, build.Logger)
 	if err != nil {
 		return SpringBoot{}, false, err
