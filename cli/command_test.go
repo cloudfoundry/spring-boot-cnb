@@ -21,8 +21,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/buildpack/libbuildpack/buildplan"
-	"github.com/cloudfoundry/jvm-application-cnb/jvmapplication"
 	"github.com/cloudfoundry/libcfbuildpack/layers"
 	"github.com/cloudfoundry/libcfbuildpack/test"
 	"github.com/cloudfoundry/spring-boot-cnb/cli"
@@ -43,24 +41,14 @@ func TestCommand(t *testing.T) {
 		})
 
 		when("NewCommand", func() {
-			it("returns false when no jvm-application", func() {
-				test.TouchFile(t, f.Build.Application.Root, "test.groovy")
-
-				_, ok, err := cli.NewCommand(f.Build)
-				g.Expect(ok).To(gomega.BeFalse())
-				g.Expect(err).NotTo(gomega.HaveOccurred())
-			})
 
 			it("returns false when no groovy files", func() {
-				f.AddBuildPlan(jvmapplication.Dependency, buildplan.Dependency{})
-
 				_, ok, err := cli.NewCommand(f.Build)
 				g.Expect(ok).To(gomega.BeFalse())
 				g.Expect(err).NotTo(gomega.HaveOccurred())
 			})
 
 			it("returns true when jvm-application and groovy files", func() {
-				f.AddBuildPlan(jvmapplication.Dependency, buildplan.Dependency{})
 				test.CopyDirectory(t, filepath.Join("testdata", "valid_app"), f.Build.Application.Root)
 
 				_, ok, err := cli.NewCommand(f.Build)
@@ -69,7 +57,6 @@ func TestCommand(t *testing.T) {
 			})
 
 			it("ignores .groovy directories", func() {
-				f.AddBuildPlan(jvmapplication.Dependency, buildplan.Dependency{})
 				test.TouchFile(t, f.Build.Application.Root, "test.groovy", "test")
 
 				_, ok, err := cli.NewCommand(f.Build)
@@ -78,7 +65,6 @@ func TestCommand(t *testing.T) {
 			})
 
 			it("rejects non-POGO, non-config files", func() {
-				f.AddBuildPlan(jvmapplication.Dependency, buildplan.Dependency{})
 				test.WriteFile(t, filepath.Join(f.Build.Application.Root, "test.groovy"), "x")
 
 				_, ok, err := cli.NewCommand(f.Build)
@@ -87,7 +73,6 @@ func TestCommand(t *testing.T) {
 			})
 
 			it("ignores logback files", func() {
-				f.AddBuildPlan(jvmapplication.Dependency, buildplan.Dependency{})
 				test.WriteFile(t, filepath.Join(f.Build.Application.Root, "ch", "qos", "logback", "test.groovy"), "class X {")
 
 				_, ok, err := cli.NewCommand(f.Build)
@@ -96,7 +81,6 @@ func TestCommand(t *testing.T) {
 			})
 
 			it("detects POGO files", func() {
-				f.AddBuildPlan(jvmapplication.Dependency, buildplan.Dependency{})
 				test.WriteFile(t, filepath.Join(f.Build.Application.Root, "test.groovy"), "class X {")
 
 				_, ok, err := cli.NewCommand(f.Build)
@@ -105,7 +89,6 @@ func TestCommand(t *testing.T) {
 			})
 
 			it("detects config files", func() {
-				f.AddBuildPlan(jvmapplication.Dependency, buildplan.Dependency{})
 				test.WriteFile(t, filepath.Join(f.Build.Application.Root, "test.groovy"), "beans {")
 
 				_, ok, err := cli.NewCommand(f.Build)
@@ -114,7 +97,6 @@ func TestCommand(t *testing.T) {
 			})
 
 			it("detects invalid .groovy files", func() {
-				f.AddBuildPlan(jvmapplication.Dependency, buildplan.Dependency{})
 				test.CopyFile(t, filepath.Join("testdata", "valid_app", "invalid.groovy"), filepath.Join(f.Build.Application.Root, "test.groovy"))
 
 				_, ok, err := cli.NewCommand(f.Build)
@@ -125,7 +107,6 @@ func TestCommand(t *testing.T) {
 		})
 
 		it("contributes command", func() {
-			f.AddBuildPlan(jvmapplication.Dependency, buildplan.Dependency{})
 			test.CopyDirectory(t, filepath.Join("testdata", "valid_app"), f.Build.Application.Root)
 
 			c, ok, err := cli.NewCommand(f.Build)
