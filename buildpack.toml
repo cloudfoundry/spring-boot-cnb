@@ -26,9 +26,9 @@ id = "org.cloudfoundry.stacks.cflinuxfs3"
 [[metadata.dependencies]]
 id      = "spring-boot-cli"
 name    = "Spring Boot CLI"
-version = "2.1.6"
-uri     = "https://repo1.maven.org/maven2/org/springframework/boot/spring-boot-cli/2.1.6.RELEASE/spring-boot-cli-2.1.6.RELEASE-bin.tar.gz"
-sha256  = "42bea1642d0bbac760944a6dd5848f440a40e1999ef493a20f0d7bc45cf3e37c"
+version = "2.1.7"
+uri     = "https://repo1.maven.org/maven2/org/springframework/boot/spring-boot-cli/2.1.7.RELEASE/spring-boot-cli-2.1.7.RELEASE-bin.tar.gz"
+sha256  = "2dd4598bf2581f1f33d9eb96ea1d9a7be324f69f96fe160275562a11a49cc084"
 stacks  = [ "io.buildpacks.stacks.bionic", "org.cloudfoundry.stacks.cflinuxfs3" ]
 
   [[metadata.dependencies.licenses]]
