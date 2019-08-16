@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+api = "0.2"
+
 [buildpack]
-id = "org.cloudfoundry.springboot"
-name = "Cloud Foundry Spring Boot Buildpack"
+id      = "org.cloudfoundry.springboot"
+name    = "Cloud Foundry Spring Boot Buildpack"
 version = "1.0.0-BUILD-SNAPSHOT"
 
 [[stacks]]
@@ -36,7 +38,7 @@ stacks  = [ "io.buildpacks.stacks.bionic", "org.cloudfoundry.stacks.cflinuxfs3" 
   uri = "https://github.com/spring-projects/spring-boot/blob/master/LICENSE.txt"
 
 [metadata]
-pre_package = "ci/build.sh"
+pre_package   = "ci/build.sh"
 include_files = [
   "LICENSE",
   "NOTICE",
