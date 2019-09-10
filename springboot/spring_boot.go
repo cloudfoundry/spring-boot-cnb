@@ -51,9 +51,9 @@ func (s SpringBoot) Contribute() error {
 
 	return s.layers.WriteApplicationMetadata(layers.Metadata{
 		Processes: layers.Processes{
-			{"spring-boot", command},
-			{"task", command},
-			{"web", command},
+			{Type: "spring-boot", Command: command},
+			{Type: "task", Command: command},
+			{Type: "web", Command: command},
 		},
 	})
 }

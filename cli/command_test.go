@@ -129,9 +129,9 @@ func TestCommand(t *testing.T) {
 			command := "spring run -cp $CLASSPATH $GROOVY_FILES"
 			g.Expect(f.Build.Layers).To(test.HaveApplicationMetadata(layers.Metadata{
 				Processes: []layers.Process{
-					{"spring-boot-cli", command},
-					{"task", command},
-					{"web", command},
+					{Type: "spring-boot-cli", Command: command},
+					{Type: "task", Command: command},
+					{Type: "web", Command: command},
 				},
 			}))
 		})

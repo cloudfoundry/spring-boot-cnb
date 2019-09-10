@@ -89,9 +89,9 @@ Spring-Boot-Version: test-version`)
 			command := "java -cp $CLASSPATH $JAVA_OPTS test-start-class"
 			g.Expect(f.Build.Layers).To(test.HaveApplicationMetadata(layers.Metadata{
 				Processes: []layers.Process{
-					{"spring-boot", command},
-					{"task", command},
-					{"web", command},
+					{Type: "spring-boot", Command: command},
+					{Type: "task", Command: command},
+					{Type: "web", Command: command},
 				},
 			}))
 		})

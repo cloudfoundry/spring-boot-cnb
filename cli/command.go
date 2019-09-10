@@ -54,9 +54,9 @@ func (c Command) Contribute() error {
 
 	return c.layers.WriteApplicationMetadata(layers.Metadata{
 		Processes: layers.Processes{
-			{"spring-boot-cli", command},
-			{"task", command},
-			{"web", command},
+			{Type: "spring-boot-cli", Command: command},
+			{Type: "task", Command: command},
+			{Type: "web", Command: command},
 		},
 	})
 }
