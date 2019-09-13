@@ -1,6 +1,6 @@
 module github.com/cloudfoundry/spring-boot-cnb
 
-go 1.12
+go 1.13
 
 require (
 	github.com/buildpack/libbuildpack v1.24.2
