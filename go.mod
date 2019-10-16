@@ -3,7 +3,7 @@ module github.com/cloudfoundry/spring-boot-cnb
 go 1.13
 
 require (
-	github.com/buildpack/libbuildpack v1.25.1
+	github.com/buildpack/libbuildpack v1.25.2
 	github.com/cloudfoundry/jvm-application-cnb v1.0.43
 	github.com/cloudfoundry/libcfbuildpack v1.89.1
 	github.com/mitchellh/mapstructure v1.1.2
