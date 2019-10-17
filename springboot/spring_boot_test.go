@@ -81,7 +81,7 @@ Spring-Boot-Version: test-version`)
 
 			layer := f.Build.Layers.Layer("spring-boot")
 			g.Expect(layer).To(test.HaveLayerMetadata(true, true, true))
-			g.Expect(layer).To(test.HaveAppendPathSharedEnvironment("CLASSPATH", strings.Join([]string{
+			g.Expect(layer).To(test.HavePrependPathSharedEnvironment("CLASSPATH", strings.Join([]string{
 				filepath.Join(f.Build.Application.Root, "test-classes"),
 				filepath.Join(f.Build.Application.Root, "test-lib", "test.jar"),
 			}, string(filepath.ListSeparator))))
