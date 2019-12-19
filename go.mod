@@ -7,6 +7,6 @@ require (
 	github.com/cloudfoundry/jvm-application-cnb v1.0.95
 	github.com/cloudfoundry/libcfbuildpack v1.91.11
 	github.com/mitchellh/mapstructure v1.1.2
-	github.com/onsi/gomega v1.8.0
+	github.com/onsi/gomega v1.8.1
 	github.com/sclevine/spec v1.4.0
 )
