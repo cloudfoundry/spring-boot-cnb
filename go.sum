@@ -24,7 +24,6 @@ github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDk
 github.com/cloudfoundry/jvm-application-cnb v1.0.109 h1:+qW3kCFpm5kCS6mqUfDr+4s6KFSxtG16PW+OpBGVG94=
 github.com/cloudfoundry/jvm-application-cnb v1.0.109/go.mod h1:2yua1wk5SnRLyp7S0kwFhZn6t05+CedoRGPYP5D2CJw=
 github.com/cloudfoundry/libcfbuildpack v1.91.17/go.mod h1:hoAcV8yAsfkkMPikDuhDhx/2WGegFrsmGQoVqie23dE=
-github.com/cloudfoundry/libcfbuildpack v1.91.18 h1:v0KjQ23g2CPPOoqEP0jcNdoET47KFX/NKwKcWF++hqU=
 github.com/cloudfoundry/libcfbuildpack v1.91.18/go.mod h1:hoAcV8yAsfkkMPikDuhDhx/2WGegFrsmGQoVqie23dE=
 github.com/cloudfoundry/libcfbuildpack v1.91.19 h1:9tZR/w4sngP5Von694tpkLsK+PYfVrdmQTVLoMsI5mg=
 github.com/cloudfoundry/libcfbuildpack v1.91.19/go.mod h1:LLXPiEr7YjuU4sx0lHNBeg8cnWImlwtUSKUOp5tLN6U=
