@@ -18,12 +18,17 @@ package springboot
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
+	"sort"
 	"strings"
+	"sync"
 
+	"github.com/buildpack/libbuildpack/application"
 	"github.com/cloudfoundry/libcfbuildpack/build"
 	"github.com/cloudfoundry/libcfbuildpack/buildpackplan"
 	"github.com/cloudfoundry/libcfbuildpack/layers"
+	"github.com/cloudfoundry/libcfbuildpack/logger"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -35,8 +40,10 @@ type SpringBoot struct {
 	// Metadata is metadata about the Spring Boot application.
 	Metadata Metadata
 
-	layer  layers.Layer
-	layers layers.Layers
+	application application.Application
+	layer       layers.Layer
+	layers      layers.Layers
+	logger      logger.Logger
 }
 
 // Contribute makes the contribution to build, cache, and launch.
@@ -47,9 +54,15 @@ func (s SpringBoot) Contribute() error {
 		return err
 	}
 
+	slices, err := s.slices()
+	if err != nil {
+		return err
+	}
+
 	command := fmt.Sprintf("java -cp $CLASSPATH $JAVA_OPTS %s", s.Metadata.StartClass)
 
 	return s.layers.WriteApplicationMetadata(layers.Metadata{
+		Slices: slices,
 		Processes: layers.Processes{
 			{Type: "spring-boot", Command: command},
 			{Type: "task", Command: command},
@@ -69,7 +82,118 @@ func (s SpringBoot) Plan() (buildpackplan.Plan, error) {
 		return buildpackplan.Plan{}, err
 	}
 
+	if d, err := s.dependencies(); err != nil {
+		return buildpackplan.Plan{}, err
+	} else {
+		p.Metadata["dependencies"] = d
+	}
+
 	return p, nil
+}
+
+type result struct {
+	err   error
+	value JARDependency
+}
+
+func (s SpringBoot) dependencies() (JARDependencies, error) {
+	ch := make(chan result)
+	var wg sync.WaitGroup
+
+	if err := filepath.Walk(filepath.Join(s.application.Root, s.Metadata.Lib), func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			d, ok, err := NewJARDependency(path, s.logger)
+			if err != nil {
+				ch <- result{err: err}
+				return
+			}
+
+			if ok {
+				ch <- result{value: d}
+			}
+		}()
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+
+	var d JARDependencies
+	for r := range ch {
+		if r.err != nil {
+			return JARDependencies{}, r.err
+		}
+
+		d = append(d, r.value)
+	}
+	sort.Sort(d)
+
+	return d, nil
+}
+
+func (s SpringBoot) isApplicationSlice(path string) bool {
+	return strings.HasPrefix(path, s.Metadata.Classes)
+}
+
+func (s SpringBoot) isDependencySlice(path string) bool {
+	return strings.HasPrefix(path, s.Metadata.Lib) && filepath.Ext(path) == ".jar" && !strings.Contains(path, "SNAPSHOT")
+}
+
+func (s SpringBoot) isLaunchSlice(path string) bool {
+	return !strings.HasPrefix(path, s.Metadata.Classes) && !strings.HasPrefix(path, s.Metadata.Lib) && !strings.HasPrefix(path, "META-INF/")
+}
+
+func (s SpringBoot) isSnapshotSlice(path string) bool {
+	return strings.HasPrefix(path, s.Metadata.Lib) && filepath.Ext(path) == ".jar" && strings.Contains(path, "SNAPSHOT")
+}
+
+func (s SpringBoot) slices() (layers.Slices, error) {
+	var app, dep, launch, snap, rem layers.Slice
+
+	if err := filepath.Walk(s.application.Root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		rel, err := filepath.Rel(s.application.Root, path)
+		if err != nil {
+			return err
+		}
+
+		if s.isApplicationSlice(rel) {
+			app.Paths = append(app.Paths, rel)
+		} else if s.isDependencySlice(rel) {
+			dep.Paths = append(dep.Paths, rel)
+		} else if s.isLaunchSlice(rel) {
+			launch.Paths = append(launch.Paths, rel)
+		} else if s.isSnapshotSlice(rel) {
+			snap.Paths = append(snap.Paths, rel)
+		} else {
+			rem.Paths = append(rem.Paths, rel)
+		}
+
+		return nil
+	}); err != nil {
+		return layers.Slices{}, err
+	}
+
+	return layers.Slices{launch, dep, snap, app, rem}, nil // intentionally ordered
 }
 
 // NewSpringBoot creates a new SpringBoot instance.  OK is true if the build plan contains a "jvm-application"
@@ -86,7 +210,9 @@ func NewSpringBoot(build build.Build) (SpringBoot, bool, error) {
 
 	return SpringBoot{
 		md,
+		build.Application,
 		build.Layers.Layer(Dependency),
 		build.Layers,
+		build.Logger,
 	}, true, nil
 }
