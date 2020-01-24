@@ -23,7 +23,7 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/cloudfoundry/libcfbuildpack/logger"
+	"github.com/cloudfoundry/libcfbuildpack/v2/logger"
 )
 
 var pattern = regexp.MustCompile(".+/(.*)-([\\d].*)\\.jar")

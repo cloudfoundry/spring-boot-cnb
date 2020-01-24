@@ -20,10 +20,10 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/buildpack/libbuildpack/application"
-	"github.com/cloudfoundry/libcfbuildpack/helper"
-	"github.com/cloudfoundry/libcfbuildpack/logger"
-	"github.com/cloudfoundry/libcfbuildpack/manifest"
+	"github.com/buildpacks/libbuildpack/v2/application"
+	"github.com/cloudfoundry/libcfbuildpack/v2/helper"
+	"github.com/cloudfoundry/libcfbuildpack/v2/logger"
+	"github.com/cloudfoundry/libcfbuildpack/v2/manifest"
 )
 
 // Metadata describes the application's metadata.

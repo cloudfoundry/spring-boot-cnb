@@ -21,9 +21,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/cloudfoundry/libcfbuildpack/buildpackplan"
-	"github.com/cloudfoundry/libcfbuildpack/layers"
-	"github.com/cloudfoundry/libcfbuildpack/test"
+	"github.com/cloudfoundry/libcfbuildpack/v2/buildpackplan"
+	"github.com/cloudfoundry/libcfbuildpack/v2/layers"
+	"github.com/cloudfoundry/libcfbuildpack/v2/test"
 	"github.com/cloudfoundry/spring-boot-cnb/springboot"
 	"github.com/onsi/gomega"
 	"github.com/sclevine/spec"

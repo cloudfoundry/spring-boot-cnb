@@ -24,11 +24,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/buildpack/libbuildpack/application"
-	"github.com/cloudfoundry/libcfbuildpack/build"
-	"github.com/cloudfoundry/libcfbuildpack/buildpackplan"
-	"github.com/cloudfoundry/libcfbuildpack/layers"
-	"github.com/cloudfoundry/libcfbuildpack/logger"
+	"github.com/buildpacks/libbuildpack/v2/application"
+	"github.com/cloudfoundry/libcfbuildpack/v2/build"
+	"github.com/cloudfoundry/libcfbuildpack/v2/buildpackplan"
+	"github.com/cloudfoundry/libcfbuildpack/v2/layers"
+	"github.com/cloudfoundry/libcfbuildpack/v2/logger"
 	"github.com/mitchellh/mapstructure"
 )
 
