@@ -218,6 +218,34 @@ Spring-Boot-Version: test-version`)
 			}))
 		})
 
+		it("handles no dependencies in Spring-Boot-Lib", func() {
+			test.WriteFile(t, filepath.Join(f.Build.Application.Root, "META-INF", "MANIFEST.MF"),
+				`
+Spring-Boot-Classes: test-classes
+Spring-Boot-Lib: test-lib
+Start-Class: test-start-class
+Spring-Boot-Version: test-version`)
+
+			e, ok, err := springboot.NewSpringBoot(f.Build)
+			g.Expect(ok).To(gomega.BeTrue())
+			g.Expect(err).NotTo(gomega.HaveOccurred())
+
+			g.Expect(e.Plan()).To(gomega.Equal(buildpackplan.Plan{
+				Name:    springboot.Dependency,
+				Version: "",
+				Metadata: buildpackplan.Metadata{
+					"lib":         "test-lib",
+					"start-class": "test-start-class",
+					"version":     "test-version",
+					"classes":     "test-classes",
+					"classpath": []string{
+						filepath.Join(f.Build.Application.Root, "test-classes"),
+					},
+					"dependencies": springboot.JARDependencies{},
+				},
+			}))
+		})
+
 		it("contributes command", func() {
 			test.TouchFile(t, filepath.Join(f.Build.Application.Root, "test-lib", "test.jar"))
 			test.WriteFile(t, filepath.Join(f.Build.Application.Root, "META-INF", "MANIFEST.MF"),

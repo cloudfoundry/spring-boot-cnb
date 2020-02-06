@@ -27,6 +27,7 @@ import (
 	"github.com/buildpacks/libbuildpack/v2/application"
 	"github.com/cloudfoundry/libcfbuildpack/v2/build"
 	"github.com/cloudfoundry/libcfbuildpack/v2/buildpackplan"
+	"github.com/cloudfoundry/libcfbuildpack/v2/helper"
 	"github.com/cloudfoundry/libcfbuildpack/v2/layers"
 	"github.com/cloudfoundry/libcfbuildpack/v2/logger"
 	"github.com/mitchellh/mapstructure"
@@ -100,7 +101,14 @@ func (s SpringBoot) dependencies() (JARDependencies, error) {
 	ch := make(chan result)
 	var wg sync.WaitGroup
 
-	if err := filepath.Walk(filepath.Join(s.application.Root, s.Metadata.Lib), func(path string, info os.FileInfo, err error) error {
+	l := filepath.Join(s.application.Root, s.Metadata.Lib)
+	if exists, err := helper.FileExists(l); err != nil {
+		return JARDependencies{}, err
+	} else if !exists {
+		return JARDependencies{}, nil
+	}
+
+	if err := filepath.Walk(l, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
