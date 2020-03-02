@@ -65,113 +65,6 @@ Spring-Boot-Version: test-version`)
 			})
 		})
 
-		when("Slices", func() {
-
-			var (
-				metadata layers.Metadata
-				s        springboot.SpringBoot
-			)
-
-			it.Before(func() {
-				test.WriteFile(t, filepath.Join(f.Build.Application.Root, "META-INF", "MANIFEST.MF"),
-					`
-Spring-Boot-Classes: test-classes
-Spring-Boot-Lib: test-lib
-Start-Class: test-start-class
-Spring-Boot-Version: test-version`)
-
-				e, ok, err := springboot.NewSpringBoot(f.Build)
-				g.Expect(ok).To(gomega.BeTrue())
-				g.Expect(err).NotTo(gomega.HaveOccurred())
-
-				s = e
-
-				command := "java -cp $CLASSPATH $JAVA_OPTS test-start-class"
-				metadata = layers.Metadata{
-					Processes: []layers.Process{
-						{Type: "spring-boot", Command: command},
-						{Type: "task", Command: command},
-						{Type: "web", Command: command},
-					},
-				}
-			})
-
-			it("adds application files to slice", func() {
-				test.TouchFile(t, f.Build.Application.Root, "test-classes", "org", "cloudfoundry", "Test.class")
-
-				metadata.Slices = layers.Slices{
-					{},
-					{},
-					{},
-					{Paths: []string{"test-classes/org/cloudfoundry/Test.class"}},
-					{Paths: []string{"META-INF/MANIFEST.MF"}},
-				}
-
-				g.Expect(s.Contribute()).To(gomega.Succeed())
-				g.Expect(f.Build.Layers).To(test.HaveApplicationMetadata(metadata))
-			})
-
-			it("adds dependency files to slice", func() {
-				test.TouchFile(t, f.Build.Application.Root, "test-lib", "test-1.2.3.jar")
-
-				metadata.Slices = layers.Slices{
-					{},
-					{Paths: []string{"test-lib/test-1.2.3.jar"}},
-					{},
-					{},
-					{Paths: []string{"META-INF/MANIFEST.MF"}},
-				}
-
-				g.Expect(s.Contribute()).To(gomega.Succeed())
-				g.Expect(f.Build.Layers).To(test.HaveApplicationMetadata(metadata))
-			})
-
-			it("adds launch files to slice", func() {
-				test.TouchFile(t, f.Build.Application.Root, "org", "cloudfoundry", "Test.class")
-
-				metadata.Slices = layers.Slices{
-					{Paths: []string{"org/cloudfoundry/Test.class"}},
-					{},
-					{},
-					{},
-					{Paths: []string{"META-INF/MANIFEST.MF"}},
-				}
-
-				g.Expect(s.Contribute()).To(gomega.Succeed())
-				g.Expect(f.Build.Layers).To(test.HaveApplicationMetadata(metadata))
-			})
-
-			it("adds snapshot files to slice", func() {
-				test.TouchFile(t, f.Build.Application.Root, "test-lib", "test-1.2.3-SNAPSHOT.jar")
-
-				metadata.Slices = layers.Slices{
-					{},
-					{},
-					{Paths: []string{"test-lib/test-1.2.3-SNAPSHOT.jar"}},
-					{},
-					{Paths: []string{"META-INF/MANIFEST.MF"}},
-				}
-
-				g.Expect(s.Contribute()).To(gomega.Succeed())
-				g.Expect(f.Build.Layers).To(test.HaveApplicationMetadata(metadata))
-			})
-
-			it("adds remainder files to slice", func() {
-				test.TouchFile(t, f.Build.Application.Root, "META-INF", "test-file")
-
-				metadata.Slices = layers.Slices{
-					{},
-					{},
-					{},
-					{},
-					{Paths: []string{"META-INF/MANIFEST.MF", "META-INF/test-file"}},
-				}
-
-				g.Expect(s.Contribute()).To(gomega.Succeed())
-				g.Expect(f.Build.Layers).To(test.HaveApplicationMetadata(metadata))
-			})
-		})
-
 		it("contributes dependencies to BOM", func() {
 			test.CopyFile(t, filepath.Join("testdata", "test-artifact-1-1.2.3.jar"),
 				filepath.Join(f.Build.Application.Root, "test-lib", "test-artifact-1-1.2.3.jar"))
@@ -214,6 +107,7 @@ Spring-Boot-Version: test-version`)
 							SHA256:  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
 						},
 					},
+					"layers-index": "",
 				},
 			}))
 		})
@@ -242,6 +136,7 @@ Spring-Boot-Version: test-version`)
 						filepath.Join(f.Build.Application.Root, "test-classes"),
 					},
 					"dependencies": springboot.JARDependencies{},
+					"layers-index": "",
 				},
 			}))
 		})

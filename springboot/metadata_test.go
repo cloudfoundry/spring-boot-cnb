@@ -44,6 +44,17 @@ func TestMetadata(t *testing.T) {
 			g.Expect(err).NotTo(gomega.HaveOccurred())
 		})
 
+		it("returns error if Spring-Boot-Layers-Index not found", func() {
+			test.WriteFile(t, filepath.Join(f.Detect.Application.Root, "META-INF", "MANIFEST.MF"),
+				`
+Spring-Boot-Version: test-version
+Spring-Boot-Layers-Index: test-inf/layers.idx`)
+
+			_, ok, err := springboot.NewMetadata(f.Detect.Application, f.Detect.Logger)
+			g.Expect(ok).To(gomega.BeFalse())
+			g.Expect(err).To(gomega.HaveOccurred())
+		})
+
 		it("parses Main-Class", func() {
 			test.TouchFile(t, filepath.Join(f.Detect.Application.Root, "test-lib", "test.jar"))
 			test.WriteFile(t, filepath.Join(f.Detect.Application.Root, "META-INF", "MANIFEST.MF"),
@@ -63,10 +74,42 @@ Spring-Boot-Version: test-version`)
 					filepath.Join(f.Detect.Application.Root, "test-classes"),
 					filepath.Join(f.Detect.Application.Root, "test-lib", "test.jar"),
 				},
-				Lib:        "test-lib",
-				StartClass: "test-start-class",
-				Version:    "test-version",
+				LayersIndex: "",
+				Lib:         "test-lib",
+				StartClass:  "test-start-class",
+				Version:     "test-version",
 			}))
 		})
+
+		it("parses with Spring-Boot-Layers-Index", func() {
+			test.TouchFile(t, filepath.Join(f.Detect.Application.Root, "test-lib", "test.jar"))
+			test.WriteFile(t, filepath.Join(f.Detect.Application.Root, "test-inf", "layers.idx"),
+				`
+dependencies
+application`)
+			test.WriteFile(t, filepath.Join(f.Detect.Application.Root, "META-INF", "MANIFEST.MF"),
+				`
+Start-Class: test-start-class
+Spring-Boot-Version: test-version
+Spring-Boot-Layers-Index: test-inf/layers.idx`)
+
+			md, ok, err := springboot.NewMetadata(f.Detect.Application, f.Detect.Logger)
+			g.Expect(err).NotTo(gomega.HaveOccurred())
+			g.Expect(ok).To(gomega.BeTrue())
+
+			g.Expect(md).To(gomega.Equal(springboot.Metadata{
+				Classes: "",
+				ClassPath: []string{
+					filepath.Join(f.Detect.Application.Root, "test-inf", "layers", "dependencies", "classes"),
+					filepath.Join(f.Detect.Application.Root, "test-inf", "layers", "application", "classes"),
+					filepath.Join(f.Detect.Application.Root, "test-lib", "test.jar"),
+				},
+				LayersIndex: "test-inf/layers.idx",
+				Lib:         "",
+				StartClass:  "test-start-class",
+				Version:     "test-version",
+			}))
+		})
+
 	}, spec.Report(report.Terminal{}))
 }
