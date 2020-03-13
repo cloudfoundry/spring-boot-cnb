@@ -45,6 +45,8 @@ type SpringBoot struct {
 	layer       layers.Layer
 	layers      layers.Layers
 	logger      logger.Logger
+
+	slicer Slicer
 }
 
 // Contribute makes the contribution to build, cache, and launch.
@@ -55,7 +57,7 @@ func (s SpringBoot) Contribute() error {
 		return err
 	}
 
-	slices, err := s.slices()
+	slices, err := s.slicer.Slice()
 	if err != nil {
 		return err
 	}
@@ -151,59 +153,6 @@ func (s SpringBoot) dependencies() (JARDependencies, error) {
 	return d, nil
 }
 
-func (s SpringBoot) isApplicationSlice(path string) bool {
-	return strings.HasPrefix(path, s.Metadata.Classes)
-}
-
-func (s SpringBoot) isDependencySlice(path string) bool {
-	return strings.HasPrefix(path, s.Metadata.Lib) && filepath.Ext(path) == ".jar" && !strings.Contains(path, "SNAPSHOT")
-}
-
-func (s SpringBoot) isLaunchSlice(path string) bool {
-	return !strings.HasPrefix(path, s.Metadata.Classes) && !strings.HasPrefix(path, s.Metadata.Lib) && !strings.HasPrefix(path, "META-INF/")
-}
-
-func (s SpringBoot) isSnapshotSlice(path string) bool {
-	return strings.HasPrefix(path, s.Metadata.Lib) && filepath.Ext(path) == ".jar" && strings.Contains(path, "SNAPSHOT")
-}
-
-func (s SpringBoot) slices() (layers.Slices, error) {
-	var app, dep, launch, snap, rem layers.Slice
-
-	if err := filepath.Walk(s.application.Root, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if info.IsDir() {
-			return nil
-		}
-
-		rel, err := filepath.Rel(s.application.Root, path)
-		if err != nil {
-			return err
-		}
-
-		if s.isApplicationSlice(rel) {
-			app.Paths = append(app.Paths, rel)
-		} else if s.isDependencySlice(rel) {
-			dep.Paths = append(dep.Paths, rel)
-		} else if s.isLaunchSlice(rel) {
-			launch.Paths = append(launch.Paths, rel)
-		} else if s.isSnapshotSlice(rel) {
-			snap.Paths = append(snap.Paths, rel)
-		} else {
-			rem.Paths = append(rem.Paths, rel)
-		}
-
-		return nil
-	}); err != nil {
-		return layers.Slices{}, err
-	}
-
-	return layers.Slices{launch, dep, snap, app, rem}, nil // intentionally ordered
-}
-
 // NewSpringBoot creates a new SpringBoot instance.  OK is true if the build plan contains a "jvm-application"
 // dependency and a "Spring-Boot-Version" manifest key.
 func NewSpringBoot(build build.Build) (SpringBoot, bool, error) {
@@ -216,11 +165,23 @@ func NewSpringBoot(build build.Build) (SpringBoot, bool, error) {
 		return SpringBoot{}, false, nil
 	}
 
+	var slicer Slicer
+	if md.LayersIndex == "" {
+		slicer = NewDefaultSlicer(build.Application.Root, md)
+	} else {
+		slicer = NewLayersIndexSlicer(build.Application.Root, md.LayersIndex)
+	}
+
 	return SpringBoot{
 		md,
 		build.Application,
 		build.Layers.Layer(Dependency),
 		build.Layers,
 		build.Logger,
+		slicer,
 	}, true, nil
+}
+
+type Slicer interface {
+	Slice() (layers.Slices, error)
 }
